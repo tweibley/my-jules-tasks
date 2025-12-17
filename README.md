@@ -22,6 +22,35 @@ The goal of this repository is to provide a collection of specialized agents (im
 
 These tasks are designed to be used with jules. For more information on how to run and schedule these tasks, refer to the [jules documentation](https://jules.google/docs).
 
+## Security
+
+This repository includes a pre-commit hook to prevent accidentally committing sensitive data like passwords, API keys, or tokens.
+
+### Setup
+
+```bash
+# Option 1: Configure git to use the .githooks directory
+git config core.hooksPath .githooks
+
+# Option 2: Copy the hook directly
+cp .githooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+### What it detects
+
+- API keys and tokens (AWS, GitHub, Google, Stripe, etc.)
+- Passwords and secrets in configuration
+- Private keys (RSA, SSH, EC, DSA, PGP)
+- Bearer tokens and auth credentials
+
+### Bypassing (use with caution)
+
+If you encounter a false positive:
+```bash
+git commit --no-verify -m "Your message"
+```
+
 ## Location
 
 This repository is hosted at [github.com/tweibley/my-jules-tasks](https://github.com/tweibley/my-jules-tasks).

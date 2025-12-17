@@ -1,0 +1,117 @@
+#!/bin/bash
+# Pre-commit hook to detect sensitive data before committing
+# Install: cp .githooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# Or run: git config core.hooksPath .githooks
+
+set -e
+
+echo "🔍 Scanning for sensitive data..."
+
+# Patterns to detect (case-insensitive)
+PATTERNS=(
+  # API Keys and Tokens
+  'api[_-]?key\s*[:=]\s*["\x27][a-zA-Z0-9_\-]{20,}["\x27]'
+  'api[_-]?secret\s*[:=]\s*["\x27][a-zA-Z0-9_\-]{20,}["\x27]'
+  'auth[_-]?token\s*[:=]\s*["\x27][a-zA-Z0-9_\-]{20,}["\x27]'
+  'access[_-]?token\s*[:=]\s*["\x27][a-zA-Z0-9_\-]{20,}["\x27]'
+  'bearer\s+[a-zA-Z0-9_\-\.]{20,}'
+
+  # Passwords
+  'password\s*[:=]\s*["\x27][^\s"'\'']+["\x27]'
+  'passwd\s*[:=]\s*["\x27][^\s"'\'']+["\x27]'
+  'pwd\s*[:=]\s*["\x27][^\s"'\'']+["\x27]'
+
+  # Secrets
+  'secret\s*[:=]\s*["\x27][^\s"'\'']+["\x27]'
+  'private[_-]?key\s*[:=]\s*["\x27][^\s"'\'']+["\x27]'
+
+  # AWS
+  'AKIA[0-9A-Z]{16}'
+  'aws[_-]?secret[_-]?access[_-]?key'
+
+  # GitHub
+  'gh[pousr]_[A-Za-z0-9_]{36,}'
+  'github[_-]?token'
+
+  # Google
+  'AIza[0-9A-Za-z_-]{35}'
+
+  # Generic secrets
+  'sk[_-]live[_-][a-zA-Z0-9]+'
+  'sk[_-]test[_-][a-zA-Z0-9]+'
+
+  # Private keys
+  '-----BEGIN RSA PRIVATE KEY-----'
+  '-----BEGIN OPENSSH PRIVATE KEY-----'
+  '-----BEGIN EC PRIVATE KEY-----'
+  '-----BEGIN DSA PRIVATE KEY-----'
+  '-----BEGIN PGP PRIVATE KEY BLOCK-----'
+)
+
+# Files to exclude from scanning
+EXCLUDE_PATTERNS=(
+  '\.git/'
+  'node_modules/'
+  'vendor/'
+  '\.bundle/'
+  '\.jpg$'
+  '\.png$'
+  '\.gif$'
+  '\.ico$'
+  '\.woff'
+  '\.ttf$'
+  '\.eot$'
+  '\.pdf$'
+  '\.zip$'
+  '\.tar'
+  '\.gz$'
+)
+
+# Build exclude pattern for grep
+EXCLUDE_ARGS=""
+for pattern in "${EXCLUDE_PATTERNS[@]}"; do
+  EXCLUDE_ARGS="$EXCLUDE_ARGS --exclude-dir=${pattern%/}"
+done
+
+# Get staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null || true)
+
+if [ -z "$STAGED_FILES" ]; then
+  echo "✅ No staged files to scan"
+  exit 0
+fi
+
+FOUND_SECRETS=0
+
+for pattern in "${PATTERNS[@]}"; do
+  # Search in staged files only
+  MATCHES=$(echo "$STAGED_FILES" | xargs grep -iEn "$pattern" 2>/dev/null || true)
+
+  if [ -n "$MATCHES" ]; then
+    if [ $FOUND_SECRETS -eq 0 ]; then
+      echo ""
+      echo "🚨 POTENTIAL SENSITIVE DATA DETECTED!"
+      echo "=================================="
+    fi
+    FOUND_SECRETS=1
+    echo ""
+    echo "Pattern: $pattern"
+    echo "$MATCHES" | head -5
+  fi
+done
+
+if [ $FOUND_SECRETS -eq 1 ]; then
+  echo ""
+  echo "=================================="
+  echo "❌ Commit blocked! Please review the above findings."
+  echo ""
+  echo "If these are false positives, you can:"
+  echo "  1. Add the file/pattern to .gitignore"
+  echo "  2. Use environment variables instead of hardcoded values"
+  echo "  3. Skip this check with: git commit --no-verify (use with caution!)"
+  echo ""
+  exit 1
+fi
+
+echo "✅ No sensitive data detected"
+exit 0
