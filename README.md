@@ -9,14 +9,14 @@ The goal of this repository is to provide a collection of specialized agents (im
 ## Repository Structure
 
 - `scheduled/`: Contains the task definitions for various scheduled jules agents.
-  - `atlas.md`: Architecture Agent 🗺️ - Focuses on system design and organization.
-  - `beacon.md`: Quality Agent 🚨 - Focuses on bug detection and code quality.
-  - `bolt.md`: (Built-in, Modified) Performance Agent ⚡ - Focuses on optimization and efficiency.
-  - `compass.md`: Direction Agent 🧭 - Focuses on alignment with project goals and standards.
-  - `palette.md`: (Built-in, Modified) Style Agent 🎨 - Focuses on consistent formatting and idiomatic Ruby.
-  - `scout.md`: Exploration Agent 🔍 - Focuses on discovering new opportunities and edge cases.
-  - `scribe.md`: Documentation Agent 📝 - Focuses on clear explanations and discoverability.
-  - `sentinel.md`: (Built-in, Modified) Security Agent 🛡️ - Focuses on vulnerability detection and security best practices.
+  - [`atlas.md`](scheduled/atlas.md): Architecture Agent 🗺️ - Focuses on system design and organization.
+  - [`beacon.md`](scheduled/beacon.md): Testing & Reliability Agent 🚦 - Focuses on test coverage and edge cases.
+  - [`bolt.md`](scheduled/bolt.md): (Built-in, Modified) Performance Agent ⚡ - Focuses on optimization and efficiency.
+  - [`compass.md`](scheduled/compass.md): Onboarding & Contribution Agent 🧭 - Focuses on developer experience and setup.
+  - [`palette.md`](scheduled/palette.md): (Built-in, Modified) Developer Experience Agent 🎨 - Focuses on API ergonomics and UX.
+  - [`scout.md`](scheduled/scout.md): Code Quality Agent 🔭 - Focuses on maintainability and code smells.
+  - [`scribe.md`](scheduled/scribe.md): Documentation Agent 📝 - Focuses on clear explanations and discoverability.
+  - [`sentinel.md`](scheduled/sentinel.md): (Built-in, Modified) Security Agent 🛡️ - Focuses on vulnerability detection and security best practices.
 
 ## Usage
 
